@@ -1,0 +1,7 @@
+D:\Work\go\chat-room\C#\chat-room\chat-room\obj\Debug\net6.0-windows\chat-room.csproj.AssemblyReference.cache
+D:\Work\go\chat-room\C#\chat-room\chat-room\obj\Debug\net6.0-windows\SimpleChatApp.Form1.resources
+D:\Work\go\chat-room\C#\chat-room\chat-room\obj\Debug\net6.0-windows\chat-room.csproj.GenerateResource.cache
+D:\Work\go\chat-room\C#\chat-room\chat-room\obj\Debug\net6.0-windows\chat-room.GeneratedMSBuildEditorConfig.editorconfig
+D:\Work\go\chat-room\C#\chat-room\chat-room\obj\Debug\net6.0-windows\chat-room.AssemblyInfoInputs.cache
+D:\Work\go\chat-room\C#\chat-room\chat-room\obj\Debug\net6.0-windows\chat-room.AssemblyInfo.cs
+D:\Work\go\chat-room\C#\chat-room\chat-room\obj\Debug\net6.0-windows\chat-room.csproj.CoreCompileInputs.cache

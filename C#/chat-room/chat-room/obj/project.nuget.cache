@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "szk3FSlnxtO+jz7+LfpD/LPvF+cWjpUPvwB6s4wfofc0xJoTHzSN/YWq5I3MdCo8gS3cGNMTD0wd2yLvXvzkHA==",
+  "success": true,
+  "projectFilePath": "D:\\Work\\go\\chat-room\\C#\\chat-room\\chat-room\\chat-room.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\M.Saleh\\.nuget\\packages\\websocketsharp.standard\\1.0.3\\websocketsharp.standard.1.0.3.nupkg.sha512"
+  ],
+  "logs": []
+}
