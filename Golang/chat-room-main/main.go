@@ -46,13 +46,15 @@ func (s *ChatServer) run() {
 			s.mutex.Lock()
 			s.clients[client] = true
 			s.mutex.Unlock()
+			log.Printf("User %s joined the chat", client.username)
 			s.broadcast <- []byte(fmt.Sprintf("User %s joined the chat", client.username))
 
 		case client := <-s.unregister:
 			s.mutex.Lock()
 			if _, ok := s.clients[client]; ok {
 				delete(s.clients, client)
-				client.conn.Close() // اینجا connection رو می‌بندیم، نه channel رو
+				client.conn.Close()
+				log.Printf("User %s left the chat", client.username)
 			}
 			s.mutex.Unlock()
 			s.broadcast <- []byte(fmt.Sprintf("User %s left the chat", client.username))
@@ -62,9 +64,11 @@ func (s *ChatServer) run() {
 			for client := range s.clients {
 				err := client.conn.WriteMessage(websocket.TextMessage, message)
 				if err != nil {
-					log.Printf("Error broadcasting to client: %v", err)
+					log.Printf("Error broadcasting to client %s: %v", client.username, err)
 					client.conn.Close()
 					delete(s.clients, client)
+				} else {
+					log.Printf("Message sent to %s: %s", client.username, string(message))
 				}
 			}
 			s.mutex.Unlock()
@@ -89,21 +93,23 @@ func (s *ChatServer) handleWebSocket(w http.ResponseWriter, r *http.Request) {
 		username: username,
 	}
 
+	log.Printf("New connection: %s", client.username)
 	s.register <- client
 
-	// اینجا فقط کانال unregister رو می‌فرستیم
 	defer func() {
+		log.Printf("Connection closed: %s", client.username)
 		s.unregister <- client
 	}()
 
 	for {
 		_, message, err := client.conn.ReadMessage()
 		if err != nil {
-			log.Printf("Error reading message: %v", err)
+			log.Printf("Error reading message from %s: %v", client.username, err)
 			break
 		}
 
 		formattedMessage := fmt.Sprintf("%s: %s", client.username, string(message))
+		log.Printf("Received message from %s: %s", client.username, formattedMessage)
 		s.broadcast <- []byte(formattedMessage)
 	}
 }
