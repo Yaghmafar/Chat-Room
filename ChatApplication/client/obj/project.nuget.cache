@@ -1,0 +1,15 @@
+{
+  "version": 2,
+  "dgSpecHash": "lFD9Y+aw5Z0=",
+  "success": true,
+  "projectFilePath": "C:\\Users\\pc\\Documents\\chatroom\\ChatApplication\\client\\WPFChatClient.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\pc\\.nuget\\packages\\microsoft.extensions.dependencyinjection.abstractions\\8.0.0\\microsoft.extensions.dependencyinjection.abstractions.8.0.0.nupkg.sha512",
+    "C:\\Users\\pc\\.nuget\\packages\\microsoft.extensions.logging.abstractions\\8.0.0\\microsoft.extensions.logging.abstractions.8.0.0.nupkg.sha512",
+    "C:\\Users\\pc\\.nuget\\packages\\microsoft.io.recyclablememorystream\\3.0.0\\microsoft.io.recyclablememorystream.3.0.0.nupkg.sha512",
+    "C:\\Users\\pc\\.nuget\\packages\\system.reactive\\6.0.0\\system.reactive.6.0.0.nupkg.sha512",
+    "C:\\Users\\pc\\.nuget\\packages\\system.threading.channels\\8.0.0\\system.threading.channels.8.0.0.nupkg.sha512",
+    "C:\\Users\\pc\\.nuget\\packages\\websocket.client\\5.1.2\\websocket.client.5.1.2.nupkg.sha512"
+  ],
+  "logs": []
+}
