@@ -43,3 +43,11 @@ E:\chatroom\chat-room-project\ChatRoomApp\obj\Debug\net8.0-windows\ChatRoomApp.p
 E:\chatroom\chat-room-project\ChatRoomApp\obj\Debug\net8.0-windows\ChatRoomApp.genruntimeconfig.cache
 E:\chatroom\chat-room-project\ChatRoomApp\obj\Debug\net8.0-windows\ref\ChatRoomApp.dll
 E:\chatroom\chat-room-project\ChatRoomApp\obj\Debug\net8.0-windows\ChatRoomApp.sourcelink.json
+E:\chatroom\chat-room-project\ChatRoomApp\bin\Debug\net8.0-windows\ClosedXML.dll
+E:\chatroom\chat-room-project\ChatRoomApp\bin\Debug\net8.0-windows\ClosedXML.Parser.dll
+E:\chatroom\chat-room-project\ChatRoomApp\bin\Debug\net8.0-windows\DocumentFormat.OpenXml.dll
+E:\chatroom\chat-room-project\ChatRoomApp\bin\Debug\net8.0-windows\DocumentFormat.OpenXml.Framework.dll
+E:\chatroom\chat-room-project\ChatRoomApp\bin\Debug\net8.0-windows\ExcelNumberFormat.dll
+E:\chatroom\chat-room-project\ChatRoomApp\bin\Debug\net8.0-windows\RBush.dll
+E:\chatroom\chat-room-project\ChatRoomApp\bin\Debug\net8.0-windows\SixLabors.Fonts.dll
+E:\chatroom\chat-room-project\ChatRoomApp\bin\Debug\net8.0-windows\System.IO.Packaging.dll
