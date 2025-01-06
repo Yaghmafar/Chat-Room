@@ -8,6 +8,9 @@
             <ColumnDefinition Width="Auto"/>
         </Grid.ColumnDefinitions>
 
+        <!-- دکمه خروجی اکسل -->
+        <Button Content="خروجی اکسل" Width="100" Height="40" Margin="10" HorizontalAlignment="Right" VerticalAlignment="Top" Click="ExportToExcel_Click"/>
+
         <Grid Grid.Column="0">
             <Grid.RowDefinitions>
                 <RowDefinition Height="*"/>

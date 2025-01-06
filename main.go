@@ -15,30 +15,31 @@ type Client struct {
 }
 
 type Message struct {
-	Type     string `json:"type"`
-	Username string `json:"username"`
-	Content  string `json:"content"`
+	Type      string `json:"type"`
+	Username  string `json:"username"`
+	Content   string `json:"content"`
 	ImageData string `json:"imageData,omitempty"`
-	FileName string `json:"filename,omitempty"`
-	FileData string `json:"fileData,omitempty"`
+	FileName  string `json:"filename,omitempty"`
+	FileData  string `json:"fileData,omitempty"`
 }
 
 var (
-	clients = make(map[*Client]bool)
-	mutex   = &sync.Mutex{}
+	clients     = make(map[*Client]bool)
+	mutex       = &sync.Mutex{}
 	chatHistory = []Message{}
 )
 
 var upgrader = websocket.Upgrader{
 	CheckOrigin: func(r *http.Request) bool {
-		return true
+		// بررسی امنیتی برای محدود کردن Origin
+		return r.Header.Get("Origin") == "http://localhost:8080"
 	},
 }
 
 func handleConnections(w http.ResponseWriter, r *http.Request) {
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
-		log.Println(err)
+		log.Printf("Upgrade error: %v", err)
 		return
 	}
 
@@ -48,13 +49,8 @@ func handleConnections(w http.ResponseWriter, r *http.Request) {
 	clients[client] = true
 	mutex.Unlock()
 
-	// ارسال تاریخچه چت به کلاینت جدید
-	for _, msg := range chatHistory {
-		err := client.Conn.WriteJSON(msg)
-		if err != nil {
-			log.Printf("Error sending chat history: %v", err)
-		}
-	}
+	// ارسال تاریخچه چت
+	sendChatHistory(client)
 
 	defer func() {
 		mutex.Lock()
@@ -68,24 +64,46 @@ func handleConnections(w http.ResponseWriter, r *http.Request) {
 		var msg Message
 		err := conn.ReadJSON(&msg)
 		if err != nil {
-			log.Println(err)
+			log.Printf("ReadJSON error: %v", err)
 			break
 		}
 
-		switch msg.Type {
-		case "username":
-			client.Username = msg.Username
-			broadcastUserList()
-		case "chat", "image", "file":
-			msg.Username = client.Username
-			broadcastMessage(msg)
-			// ذخیره پیام در تاریخچه
-			chatHistory = append(chatHistory, msg)
-			// محدود کردن تاریخچه به 100 پیام آخر
-			if len(chatHistory) > 100 {
-				chatHistory = chatHistory[len(chatHistory)-100:]
-			}
+		handleMessage(client, msg)
+	}
+}
+
+func sendChatHistory(client *Client) {
+	mutex.Lock()
+	defer mutex.Unlock()
+
+	for _, msg := range chatHistory {
+		err := client.Conn.WriteJSON(msg)
+		if err != nil {
+			log.Printf("Error sending chat history: %v", err)
+			break
 		}
+	}
+}
+
+func handleMessage(client *Client, msg Message) {
+	switch msg.Type {
+	case "username":
+		client.Username = msg.Username
+		broadcastUserList()
+	case "chat", "image", "file":
+		msg.Username = client.Username
+		saveMessage(msg)
+		broadcastMessage(msg)
+	}
+}
+
+func saveMessage(msg Message) {
+	mutex.Lock()
+	defer mutex.Unlock()
+
+	chatHistory = append(chatHistory, msg)
+	if len(chatHistory) > 100 {
+		chatHistory = chatHistory[len(chatHistory)-100:]
 	}
 }
 
@@ -101,23 +119,28 @@ func broadcastUserList() {
 
 	userListMsg := Message{
 		Type:     "userlist",
-		Content:  "", 
-		Username: "", 
+		Content:  "",
+		Username: "",
 	}
 
 	for client := range clients {
 		err := client.Conn.WriteJSON(userListMsg)
 		if err != nil {
-			log.Printf("error sending user list: %v", err)
+			log.Printf("Error sending user list: %v", err)
 		}
 	}
 }
 
 func broadcastMessage(msg Message) {
+	mutex.Lock()
+	defer mutex.Unlock()
+
 	for client := range clients {
 		err := client.Conn.WriteJSON(msg)
 		if err != nil {
-			log.Printf("error: %v", err)
+			log.Printf("Error broadcasting message: %v", err)
+			client.Conn.Close()
+			delete(clients, client)
 		}
 	}
 }
@@ -128,5 +151,7 @@ func main() {
 		handleConnections(c.Writer, c.Request)
 	})
 
-	r.Run(":8080")
+	if err := r.Run(":8080"); err != nil {
+		log.Fatalf("Server failed to start: %v", err)
+	}
 }
