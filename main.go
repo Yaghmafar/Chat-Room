@@ -96,17 +96,17 @@ func handleMessage(client *Client, msg Message) {
         saveMessage(msg)
         broadcastMessage(msg)
     case "delete":
-        deleteMessage(msg.Content)
-        broadcastMessage(msg)
+		deleteMessage(client.Username, msg.Content)
+		broadcastMessage(msg)
     }
 }
 
-func deleteMessage(content string) {
+func deleteMessage(username, content string) {
     mutex.Lock()
     defer mutex.Unlock()
 
     for i, msg := range chatHistory {
-        if msg.Content == content {
+        if msg.Content == content && msg.Username == username {
             chatHistory = append(chatHistory[:i], chatHistory[i+1:]...)
             break
         }

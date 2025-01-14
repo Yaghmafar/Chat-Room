@@ -174,6 +174,12 @@ private async Task ReceiveMessagesAsync()
                         }
                     }
                 }
+                else if (msgObject.type == "delete")
+                {
+                    // حذف پیام از لیست
+                    var messageToRemove = $"{msgObject.username}: {msgObject.content}";
+                    _messages.Remove(messageToRemove);
+                }
 
                 ScrollToBottom(); // اسکرول به پایین
             });
@@ -226,7 +232,7 @@ private void ExportToExcel_Click(object sender, RoutedEventArgs e)
     }
 }
 
-     private async void DeleteMessage_Click(object sender, RoutedEventArgs e)
+ private async void DeleteMessage_Click(object sender, RoutedEventArgs e)
 {
     if (sender is Button button && button.DataContext is string message)
     {
@@ -234,11 +240,14 @@ private void ExportToExcel_Click(object sender, RoutedEventArgs e)
         {
             _messages.Remove(message);
 
+            // فقط محتوای پیام را ارسال کنید
+            var messageContent = message.Substring(message.IndexOf(':') + 1).Trim();
+
             var deleteMessage = new
             {
                 type = "delete",
                 username = _username,
-                content = message
+                content = messageContent // ارسال فقط محتوا
             };
             var jsonMessage = JsonConvert.SerializeObject(deleteMessage);
             var messageBytes = Encoding.UTF8.GetBytes(jsonMessage);
