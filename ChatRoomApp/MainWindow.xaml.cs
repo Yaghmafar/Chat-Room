@@ -123,41 +123,70 @@ namespace ChatRoomApp
                 MessageTextBox.Clear();
             }
         }
+private void MessageTextBox_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+{
+    if (e.Key == System.Windows.Input.Key.Enter)
+    {
+        SendMessage_Click(sender, e);
+    }
+}
+    private void ScrollToBottom()
+{
+    if (MessagesList.Items.Count > 0)
+    {
+        var lastItem = MessagesList.Items[MessagesList.Items.Count - 1];
+        MessagesList.ScrollIntoView(lastItem);
+    }
+}
 
-        private async Task ReceiveMessagesAsync()
+private async Task ReceiveMessagesAsync()
+{
+    var buffer = new byte[1024 * 4];
+    while (_webSocket.State == WebSocketState.Open)
+    {
+        var result = await _webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
+
+        if (result.MessageType == WebSocketMessageType.Text)
         {
-            var buffer = new byte[1024 * 4];
-            while (_webSocket.State == WebSocketState.Open)
+            var message = Encoding.UTF8.GetString(buffer, 0, result.Count);
+
+            Dispatcher.Invoke(() =>
             {
-                var result = await _webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
+                var msgObject = JsonConvert.DeserializeObject<dynamic>(message);
 
-                if (result.MessageType == WebSocketMessageType.Text)
+                if (msgObject.type == "chat")
                 {
-                    var message = Encoding.UTF8.GetString(buffer, 0, result.Count);
-
-                    Dispatcher.Invoke(() =>
+                    _messages.Add($"{msgObject.username}: {msgObject.content}");
+                }
+                else if (msgObject.type == "system")
+                {
+                    _messages.Add($"[System]: {msgObject.content}");
+                }
+                else if (msgObject.type == "userlist")
+                {
+                    var usernames = msgObject.content.ToString().Split(',');
+                    OnlineUsersList.Items.Clear();
+                    foreach (var username in usernames)
                     {
-                        var msgObject = JsonConvert.DeserializeObject<dynamic>(message);
+                        if (!string.IsNullOrEmpty(username))
+                        {
+                            OnlineUsersList.Items.Add(username);
+                        }
+                    }
+                }
 
-                        if (msgObject.type == "chat")
-                        {
-                            _messages.Add($"{msgObject.username}: {msgObject.content}");
-                        }
-                        else if (msgObject.type == "system")
-                        {
-                            _messages.Add($"[System]: {msgObject.content}");
-                        }
-                    });
-                }
-                else if (result.MessageType == WebSocketMessageType.Close)
-                {
-                    Dispatcher.Invoke(() => {
-                        MessageBox.Show("ارتباط با سرور قطع شد.");
-                    });
-                    break;
-                }
-            }
+                ScrollToBottom(); // اسکرول به پایین
+            });
         }
+        else if (result.MessageType == WebSocketMessageType.Close)
+        {
+            Dispatcher.Invoke(() => {
+                MessageBox.Show("ارتباط با سرور قطع شد.");
+            });
+            break;
+        }
+    }
+}
 
 private void ExportToExcel_Click(object sender, RoutedEventArgs e)
 {
@@ -197,35 +226,35 @@ private void ExportToExcel_Click(object sender, RoutedEventArgs e)
     }
 }
 
-        private void DeleteMessage_Click(object sender, RoutedEventArgs e)
+     private async void DeleteMessage_Click(object sender, RoutedEventArgs e)
+{
+    if (sender is Button button && button.DataContext is string message)
+    {
+        if (message.StartsWith($"{_username}:"))
         {
-            if (sender is Button button && button.DataContext is string message)
+            _messages.Remove(message);
+
+            var deleteMessage = new
             {
-                if (message.StartsWith($"{_username}:"))
-                {
-                    _messages.Remove(message);
+                type = "delete",
+                username = _username,
+                content = message
+            };
+            var jsonMessage = JsonConvert.SerializeObject(deleteMessage);
+            var messageBytes = Encoding.UTF8.GetBytes(jsonMessage);
 
-                    var deleteMessage = new
-                    {
-                        type = "delete",
-                        username = _username,
-                        content = message
-                    };
-                    var jsonMessage = JsonConvert.SerializeObject(deleteMessage);
-                    var messageBytes = Encoding.UTF8.GetBytes(jsonMessage);
-
-                    _ = _webSocket.SendAsync(
-                        new ArraySegment<byte>(messageBytes),
-                        WebSocketMessageType.Text,
-                        true,
-                        CancellationToken.None
-                    );
-                }
-                else
-                {
-                    MessageBox.Show("شما فقط می‌توانید پیام‌های خودتان را حذف کنید.");
-                }
-            }
+            await _webSocket.SendAsync(
+                new ArraySegment<byte>(messageBytes),
+                WebSocketMessageType.Text,
+                true,
+                CancellationToken.None
+            );
         }
+        else
+        {
+            MessageBox.Show("شما فقط می‌توانید پیام‌های خودتان را حذف کنید.");
+        }
+    }
+}
     }
 }

@@ -51,3 +51,6 @@ E:\chatroom\chat-room-project\ChatRoomApp\bin\Debug\net8.0-windows\ExcelNumberFo
 E:\chatroom\chat-room-project\ChatRoomApp\bin\Debug\net8.0-windows\RBush.dll
 E:\chatroom\chat-room-project\ChatRoomApp\bin\Debug\net8.0-windows\SixLabors.Fonts.dll
 E:\chatroom\chat-room-project\ChatRoomApp\bin\Debug\net8.0-windows\System.IO.Packaging.dll
+E:\chatroom\chat-room-project\ChatRoomApp\bin\Debug\net8.0-windows\MaterialDesignColors.dll
+E:\chatroom\chat-room-project\ChatRoomApp\bin\Debug\net8.0-windows\MaterialDesignThemes.Wpf.dll
+E:\chatroom\chat-room-project\ChatRoomApp\bin\Debug\net8.0-windows\Microsoft.Xaml.Behaviors.dll

@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"net/http"
+	"strings"
 	"sync"
 
 	"github.com/gin-gonic/gin"
@@ -86,15 +87,30 @@ func sendChatHistory(client *Client) {
 }
 
 func handleMessage(client *Client, msg Message) {
-	switch msg.Type {
-	case "username":
-		client.Username = msg.Username
-		broadcastUserList()
-	case "chat", "image", "file":
-		msg.Username = client.Username
-		saveMessage(msg)
-		broadcastMessage(msg)
-	}
+    switch msg.Type {
+    case "username":
+        client.Username = msg.Username
+        broadcastUserList()
+    case "chat", "image", "file":
+        msg.Username = client.Username
+        saveMessage(msg)
+        broadcastMessage(msg)
+    case "delete":
+        deleteMessage(msg.Content)
+        broadcastMessage(msg)
+    }
+}
+
+func deleteMessage(content string) {
+    mutex.Lock()
+    defer mutex.Unlock()
+
+    for i, msg := range chatHistory {
+        if msg.Content == content {
+            chatHistory = append(chatHistory[:i], chatHistory[i+1:]...)
+            break
+        }
+    }
 }
 
 func saveMessage(msg Message) {
@@ -108,27 +124,27 @@ func saveMessage(msg Message) {
 }
 
 func broadcastUserList() {
-	usernames := make([]string, 0)
-	mutex.Lock()
-	for client := range clients {
-		if client.Username != "" {
-			usernames = append(usernames, client.Username)
-		}
-	}
-	mutex.Unlock()
+    usernames := make([]string, 0)
+    mutex.Lock()
+    for client := range clients {
+        if client.Username != "" {
+            usernames = append(usernames, client.Username)
+        }
+    }
+    mutex.Unlock()
 
-	userListMsg := Message{
-		Type:     "userlist",
-		Content:  "",
-		Username: "",
-	}
+    userListMsg := Message{
+        Type:     "userlist",
+        Content:  strings.Join(usernames, ","),
+        Username: "",
+    }
 
-	for client := range clients {
-		err := client.Conn.WriteJSON(userListMsg)
-		if err != nil {
-			log.Printf("Error sending user list: %v", err)
-		}
-	}
+    for client := range clients {
+        err := client.Conn.WriteJSON(userListMsg)
+        if err != nil {
+            log.Printf("Error sending user list: %v", err)
+        }
+    }
 }
 
 func broadcastMessage(msg Message) {
